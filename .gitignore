@@ -1,0 +1,11 @@
+# python
+*.pyc
+
+# vim
+*.swp
+
+# coses meves
+*.zip
+
+# enunciats
+*.pdf
