@@ -109,12 +109,12 @@ def depthFirstSearch(problem):
      - nextNode     Saber quin es el seguent element que hem de visitar
     """
     stat = problem.getStartState ()             # Saber on començem.
-    if problem.isGoalState (stat): return []    # Assegurar-se que no es la solució
+    if problem.isGoalState (stat): return []    # Assegurar-se que no es la solució.
     path = set ( [stat] )                       # Stack, per saber el seguent pas.
     node = Node ( stat, False, [], 0 )          # Generem el primer node.
 
-    # generant els fills
-    nextNode = [ Node ( nStat, node, [nAction], nCost ) for nStat, nAction, nCost in problem.getSuccessors (stat)]  # Cami.
+    # Generant els fills.
+    nextNode = [ Node ( nStat, node, [nAction], nCost ) for nStat, nAction, nCost in problem.getSuccessors (stat)]  # Camí.
 
     """
     Inicialitzem la busqueda a la casella a trobar
@@ -125,38 +125,71 @@ def depthFirstSearch(problem):
         node = nextNode.pop ()  # el node "seguent"
         stat = node.stat        # l'estat del node en questio
 
-        # nomes li farem cas si no esta registrat
-        if not stat in path:
-                path.add (stat) # el registrem  per evitar repeticions
+        # Només operarem si no esta registrat, i evitarem fer calculs si és la solució desitjada.
+        if not stat in path and not problem.isGoalState (stat):
+            path.add (stat) # El registrem  per evitar repeticions.
 
-                # ja que el fem anar en 2 llocs
-                successors = problem.getSuccessors (stat)
-
-                if len (successors) == 2:
-                    nextNode += [ Node ( nStat, node.father, node.action + [nAction], node.cost + nCost ) for nStat, nAction, nCost in successors if nStat not in path ]
-                else:
-                    nextNode += [ Node ( nStat, node, [nAction], node.cost + nCost ) for nStat, nAction, nCost in successors if nStat not in path ]
-
-
+            # Per a fer el codi més llegible.
+            successors = problem.getSuccessors (stat)
+            nextNode += [ Node ( nStat, node, [nAction], node.cost + nCost ) for nStat, nAction, nCost in successors if nStat not in path ]
 
 
     # Assegurar-se que estem al final.
     if problem.isGoalState (stat):
         sol = []
         while node:
-            #print node.stat, node.action
             sol = node.action + sol
             node = node.father
         return sol
     else:
         print "No ha trobat cap solucio"
 
-    # Afegim el primer element al cami. Per evitar elements repetits.
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    """
+    Inicialitzant les variables necessaries
+     - stat         Per saber on començem.
+     - node         Inicialitzar en un node.
+     - path         Per evitar repetir els passos ja fets.
+     - nextNode     Saber quin es el seguent element que hem de visitar.
+    """
+    stat = problem.getStartState ()             # Saber on començem.
+    if problem.isGoalState (stat): return []    # Assegurar-se que no es la solució.
+    path = set ( [stat] )                       # Assegurar-se que no orepetim elements.
+    node = Node ( stat, False, [], 0 )          # Generem el primer node.
+
+    # Generem els fills.
+    nextNode = [ Node ( nStat, node, [nAction], nCost ) for nStat, nAction, nCost in problem.getSuccessors (stat)]  # Camí.
+    """
+    Inicialitzem la busqueda a la casella a trobar
+    """
+    # Buscarem mentres no haguem trobat el camí i tinguem per on explorar.
+    while not problem.isGoalState ( stat ) and nextNode:
+        # Inicialitzem les variables necessaries.
+        node = nextNode.pop (0) # El node "seguent".
+        stat = node.stat        # L'estat del node en questió.
+
+        # Només operarem si no esta registrat, i evitarem fer calculs si és la solució desitjada.
+        if not stat in path and not problem.isGoalState (stat):
+            path.add (stat) # El registrem per a evitar calcular els mateixos punts.
+
+            # Per a fer el codi més llegible.
+	    successors = problem.getSuccessors (stat)
+            nextNode += [ Node ( nStat, node, [nAction], node.cost + nCost ) for nStat, nAction, nCost in successors if nStat not in path ]
+
+    # Assegurar-se que estem al final.
+    if problem.isGoalState (stat):
+        sol = []
+        while node:
+            sol = node.action + sol
+            node = node.father
+        return sol
+    else:
+        print "No ha trobat cap solucio"
+
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
@@ -174,6 +207,45 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    stat = problem.getStartState ()             # Saber on començem.
+    if problem.isGoalState (stat): return []    # Assegurar-se que no es la solució
+    path = set ( [stat] )                       # Stack, per saber el seguent pas.
+    node = Node ( stat, False, [], 0 )          # Generem el primer node.
+
+    # Generant els fills
+    nextNode = util.PriorityQueue () # Camí.
+    for nStat, nAction, nCost in problem.getSuccessors (stat):
+        nextNode.push ( Node ( nStat, node, [nAction], nCost ), nCost + heuristic ( nStat, problem ) )
+
+    """
+    Inicialitzem la busqueda a la casella a trobar
+    """
+    # Buscarem mentres no haguem trobat el cami i tinguem per on explorar.
+    while not problem.isGoalState ( stat ) and not nextNode.isEmpty ():
+        # inicialitzem les variables necessaries.
+        node = nextNode.pop ()  # el seguent node.
+        stat = node.stat        # l'estat del node en questió.
+
+        # Nomes l'hi farem cas si no esta registrat i no és la solució desitjada.
+        if not stat in path and not problem.isGoalState (stat):
+            path.add (stat) # El registrem per evitar repeticions.
+
+            for nStat, nAction, nCost in problem.getSuccessors (stat):
+                if nStat not in path:
+                   nextNode.push ( Node ( nStat, node, [nAction], node.cost + nCost ), node.cost + nCost + heuristic (nStat, problem) )
+
+    if problem.isGoalState (stat):
+        sol = []
+        while node:
+            sol = node.action + sol
+            node = node.father
+        return sol
+    else:
+        print "No ha trobat cap solucio"
+
+
+
+
     util.raiseNotDefined()
 
 
