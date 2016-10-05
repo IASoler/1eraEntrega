@@ -372,7 +372,7 @@ def memo (f):
 # La distancia de manhatan
 def manhatan ( x, y ): return abs ( x[0] - y[0] ) + abs ( x[1] - y[1] )
 
-# De forma recursiva, el possible cami ideal mes curt
+# De forma recursiva, el possible cami ideal mes curt. Cas sense parets
 @memo # Gracies al memo, no perdem tant (tot i que se perd molt)
 def ForceObtimalPath ( init, childrens ):
     #if type (init) != type (childrens): print type (childrens)
@@ -382,6 +382,18 @@ def ForceObtimalPath ( init, childrens ):
         t = manhatan ( init, child ) + ForceObtimalPath ( child, tuple( x for x in childrens if x != child ) )
         if t < minim: minim = t
     return minim
+
+# Problema, tamanys masa grans, impossible de fer-los
+def ForceObtimalPath2 ( init, childrens, n=3 ):
+    if not n: return len (childrens)
+    #if type (init) != type (childrens): print type (childrens)
+    if len (childrens) == 0: return 0
+    minim = manhatan ( init, childrens[0] ) + ForceObtimalPath2 ( childrens[0], childrens[1:], n -1 )
+    for child in childrens[1:]:
+        t = manhatan ( init, child ) + ForceObtimalPath2 ( child, tuple( x for x in childrens if x != child ), n -1 )
+        if t < minim: minim = t
+    return minim
+
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -423,6 +435,8 @@ class FoodSearchProblem:
         self.startingGameState = startingGameState
         self._expanded = 0 # DO NOT CHANGE
         self.heuristicInfo = {} # A dictionary for the heuristic to store information
+	global decide
+	decide = True
 
     def getStartState(self):
         return self.start
@@ -503,7 +517,15 @@ def foodHeuristic(state, problem):
     a = tuple (foodGrid.asList())
     print a
     """
-    return ForceObtimalPath ( position, tuple (foodGrid.asList()) )
+    global decide
+    global whereFuntion
+    if decide:
+        decide = False
+        whereFuntion = foodGrid.count () <= 13
+
+    if whereFuntion:
+        return ForceObtimalPath ( position, tuple (foodGrid.asList()) )
+    return ForceObtimalPath2 ( position, tuple (foodGrid.asList()) )
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
