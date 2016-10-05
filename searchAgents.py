@@ -353,7 +353,35 @@ class CornersProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
         return len(actions)
 
+"""
+El meu codi per fer una heuristica
+"""
 
+# Serveix per evitar calcular 2 cops el mateix (és recursiu i podria sortir molt car)
+def memo (f):
+    table = dict ()
+    def fmemo (*args):
+        if not table.has_key (args):
+            t = f (*args)
+            table[args] = t
+            return t
+        return table[args]
+    fmemo.memo = table
+    return fmemo
+
+# La distancia de manhatan
+def manhatan ( x, y ): return abs ( x[0] - y[0] ) + abs ( x[1] - y[1] )
+
+# De forma recursiva, el possible cami ideal mes curt
+@memo # Gracies al memo, no perdem tant (tot i que se perd molt)
+def ForceObtimalPath ( init, childrens ):
+    #if type (init) != type (childrens): print type (childrens)
+    if len (childrens) == 0: return 0
+    minim = manhatan ( init, childrens[0] ) + ForceObtimalPath ( childrens[0], childrens[1:] )
+    for child in childrens[1:]:
+        t = manhatan ( init, child ) + ForceObtimalPath ( child, tuple( x for x in childrens if x != child ) )
+        if t < minim: minim = t
+    return minim
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -371,6 +399,7 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    return ForceObtimalPath ( state[0], state[1] )
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
@@ -465,7 +494,16 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    """
+   Learning foodGrid element
+    print "food:", type (foodGrid)
+    #help (foodGrid)
+    print "contar", foodGrid.count()
+    #a = foodGrid.packBits()
+    a = tuple (foodGrid.asList())
+    print a
+    """
+    return ForceObtimalPath ( position, tuple (foodGrid.asList()) )
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
