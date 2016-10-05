@@ -374,12 +374,13 @@ def manhatan ( x, y ): return abs ( x[0] - y[0] ) + abs ( x[1] - y[1] )
 
 # De forma recursiva, el possible cami ideal mes curt
 @memo # Gracies al memo, no perdem tant (tot i que se perd molt)
-def ForceObtimalPath ( init, childrens ):
+def ForceObtimalPath ( init, childrens, n=4 ):
+    if not n: return len (childrens) # per evitar que el programa es quedi penjat
     #if type (init) != type (childrens): print type (childrens)
     if len (childrens) == 0: return 0
-    minim = manhatan ( init, childrens[0] ) + ForceObtimalPath ( childrens[0], childrens[1:] )
+    minim = manhatan ( init, childrens[0] ) + ForceObtimalPath ( childrens[0], childrens[1:], n-1 )
     for child in childrens[1:]:
-        t = manhatan ( init, child ) + ForceObtimalPath ( child, tuple( x for x in childrens if x != child ) )
+        t = manhatan ( init, child ) + ForceObtimalPath ( child, tuple( x for x in childrens if x != child ), n-1 )
         if t < minim: minim = t
     return minim
 def cornersHeuristic(state, problem):
