@@ -4,3 +4,39 @@ Només troba la solució, no pasa el autograder.
 
 
 Profe, marcpujol@ub.edu
+
+min ( estat, profunditat, fantasma ) -> number
+max ( estat, profunditat ) -> number
+
+
+
+getAction ( gameState ):
+	if gameState.isWin () or gameState.isLost () or self.depth = 0: return None
+	maxValue, bestAction = -inf, None
+	for action in gameState.getLegalActions ():
+		suc = gameState.generatePacmanSuccessor ( action )
+		value = min ( suc, self.depth, 1 )
+		if value > maxValue:
+			maxValue = value
+			bestaction = action
+	return bestaction
+
+
+
+
+min ( estat, profunditat, fantasma ):
+	#if terminal_test ( state, profunditat ):
+	if profunditat == 0 or estat.isWin () or estat.isLose():
+		return self.evaluationFunction ( estat )
+
+	minValue, nfantasmes = inf, estat.getNumAgents () -1 # -1 pel pacman
+
+	for action in gameState.getLegalActions ( fantasma ):
+		if fantasma == nFantasmes:
+			value = max ( gameState.generateSuccessor ( fantasma, action ), profunditat -1 )
+		else:
+			value = min (... , profundidad -1, fantasma +1)
+
+		minValue = min (minValue, valor)
+
+	return minValue
