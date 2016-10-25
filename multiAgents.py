@@ -175,6 +175,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+
+        for action in gameState.getLegalActions():
+            value = self.minValue ( gameState.generateSuccessor (
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):

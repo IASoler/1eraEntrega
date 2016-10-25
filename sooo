@@ -16,3 +16,76 @@ set list
 
 set tabstop=4 shiftwidth=4 expandtab
 set list
+colorscheme industry
+
+
+
+class MinimaxAgent(MultiAgentSearchAgent):
+    """
+      Your minimax agent (question 2)
+    """
+
+    def getAction(self, gameState):
+        """
+          Returns the minimax action from the current gameState using self.depth
+          and self.evaluationFunction.
+
+          Here are some method calls that might be useful when implementing minimax.
+
+          gameState.getLegalActions(agentIndex):
+            Returns a list of legal actions for an agent
+            agentIndex=0 means Pacman, ghosts are >= 1
+
+          gameState.generateSuccessor(agentIndex, action):
+            Returns the successor game state after an agent takes an action
+
+          gameState.getNumAgents():
+            Returns the total number of agents in the game
+        """
+
+        maxVal, bestAction = -float("inf"), None
+
+        if gameState.isLose() or gameState.isWin() or self.depth == 0:
+            return bestAction
+
+        for action in gameState.getLegalActions():
+
+            value = self.minValue(gameState.generateSuccessor(0,action),self.depth,1)
+
+            if value > maxVal:
+                maxVal = value
+                bestAction = action
+
+        return bestAction
+
+    def minValue(self,state,depth,numGhost):
+
+        if depth == 0 or state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+
+        minValue,numTotalGhosts = float("inf"), state.getNumAgents()-1
+
+        for action in state.getLegalActions(numGhost):
+
+            if numGhost == numTotalGhosts:#Si es lultim fantasma, canviem de jugador i cridem al max
+                value = self.maxValue(state.generateSuccessor(numGhost,action),depth-1)
+            else:
+                value = self.minValue(state.generateSuccessor(numGhost,action),depth,numGhost+1)
+
+            minValue = min(minValue,value)
+
+        return minValue
+
+
+    def maxValue(self, state, depth):
+
+        if depth == 0 or state.isWin() or state.isLose():
+            return self.evaluationFunction(state)
+
+        maxVal = -float("inf")
+
+        for action in state.getLegalActions():
+            value = self.minValue(state.generateSuccessor(0,action),depth,1)
+            maxVal = max(maxVal,value)
+
+        return maxVal
