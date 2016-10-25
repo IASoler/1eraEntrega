@@ -75,24 +75,40 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        # - distancia menjar proper
-        # + distancia fantasma
-        # + distancia entre aquests dos
-	width, height = newFood.width, newFood.height
+        # Per entendrem, heightNumber és un valor gran.
+        width, height = newFood.width, newFood.height
+        heightNumber = width * height
 
-        #
-	nF = newFood.asList()
-        minFood = 999999999999999999
-	for i in nF:
-		a = util.manhattanDistance ( newPos, i)
-		if a < minFood: minFood = a
-	#help (newGhostStates)
-	#print newGhostStates[0].getPosition ()
-        #return 2*(successorGameState.getScore()) - minFood
-	n = util.manhattanDistance (newPos, newGhostStates[0].getPosition () )
-	if n < 5:
-		return 10* util.manhattanDistance (newPos, newGhostStates[0].getPosition () )
-	return -minFood - 2*(width + height) * newFood.count ()
+        # Iniciem el valor que retornarem.
+        score = 0
+
+        # L'acció parats no ens agrada.
+        if action == 'Stop':
+            score -= 100
+
+        # Afaborim el menjar més proper.
+        nF = newFood.asList()
+        minFood = 10 * heightNumber
+        for i in nF:
+            a = util.manhattanDistance ( newPos, i)
+            if a < minFood: minFood = a
+
+        # Tot i que si no ha trobat menjar (finalitzat), puntuarem molt a fabor.
+        if minFood == 10 * heightNumber: minFood = - 10 * heightNumber
+
+        # Tenim en compte el menjar i el cas especial del final.
+        score -= minFood
+
+        n = util.manhattanDistance (newPos, newGhostStates[0].getPosition () )
+        # Vigilem la distancia del fantasma.
+        if n < 5:
+            score += 10* util.manhattanDistance (newPos, newGhostStates[0].getPosition () ) - 1000*heightNumber
+        # Sino, tindrem en compte el nombre restant de menjar.
+        else:
+            score += heightNumber - 100*len (nF)
+
+        # Retornem el score.
+        return score
 
 def scoreEvaluationFunction(currentGameState):
     """

@@ -4,3 +4,15 @@ Només troba la solució, no pasa el autograder.
 
 
 Profe, marcpujol@ub.edu
+
+
+Consola:
+
+syntax on
+set autoindent
+set ts=4
+set expandtab
+set list
+
+set tabstop=4 shiftwidth=4 expandtab
+set list
