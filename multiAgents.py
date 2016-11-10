@@ -75,18 +75,18 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        # Per entendrem, heightNumber és un valor gran.
+        # Per entendrem, heightNumber es un valor gran.
         width, height = newFood.width, newFood.height
         heightNumber = width * height
 
         # Iniciem el valor que retornarem.
         score = 0
 
-        # L'acció parats no ens agrada.
+        # L'accio parats no ens agrada.
         if action == 'Stop':
             score -= 100
 
-        # Afaborim el menjar més proper.
+        # Afaborim el menjar mes proper.
         nF = newFood.asList()
         minFood = 10 * heightNumber
         for i in nF:
@@ -145,7 +145,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def getAction(self, gameState):
+    def getAction(self, gameState, numGhost=1):
         """
           Returns the minimax action from the current gameState using self.depth
           and self.evaluationFunction.
@@ -163,6 +163,37 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
+        # Descobrim la profunditat.
+        depth = self.depth
+
+        # Primer de tot, comprovem si es coherent la pregunta.
+        if gameState.isLose () or gameState.isWin() or depth == 0:
+            return None
+
+        maxValue, bestAction = self.maxValue (self, gameState, depth)
+        return bestAction
+
+    def maxValue (self, state, depth):
+        # Inicialitzem bestAction, minValue i arr(ay).
+        arr = gameState.getLegalActions ()
+        bestAction = arr.pop ()
+        maxValue = self.minValue (gameState.generateSuccessor (0, action), self.depth, numGhost)
+
+        # Entrem dins del bucle.
+        for action in gameState.getLegalActions ():
+
+            # Valor que te un pas en concret.
+            value = self.minValue (gameState.generateSuccessor (0, action), self.depth, numGhost)
+
+            # Comprovem si el resultat es millor.
+            if value > maxValue:
+                maxValue = value
+                bestAction = action
+
+        return bestAction
+
+        # Funcio que retornara accio i valor.
+        def minValue (self, state, depth, numGhost):
         util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -176,8 +207,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        for action in gameState.getLegalActions():
-            value = self.minValue ( gameState.generateSuccessor (
+#        for action in gameState.getLegalActions():
+#            value = self.minValue ( gameState.generateSuccessor (
         util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
