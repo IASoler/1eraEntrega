@@ -145,7 +145,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
       Your minimax agent (question 2)
     """
 
-    def getAction(self, gameState, numGhost=1):
+    def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
           and self.evaluationFunction.
@@ -170,31 +170,54 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if gameState.isLose () or gameState.isWin() or depth == 0:
             return None
 
-        maxValue, bestAction = self.maxValue (self, gameState, depth)
+        print gameState, depth
+        maxValue, bestAction = self.maxValue (gameState, depth)
         return bestAction
 
     def maxValue (self, state, depth):
+        # Comprovem el final del joc.
+        if depth == 0 or state.isWin () or state.isLose(): return self.evaluationFunction (state)
+
         # Inicialitzem bestAction, minValue i arr(ay).
-        arr = gameState.getLegalActions ()
+        arr = state.getLegalActions ()
         bestAction = arr.pop ()
-        maxValue = self.minValue (gameState.generateSuccessor (0, action), self.depth, numGhost)
+        maxValue = self.minValue (state.generateSuccessor (0, bestAction), depth -1)
 
         # Entrem dins del bucle.
-        for action in gameState.getLegalActions ():
+        for action in arr:
 
             # Valor que te un pas en concret.
-            value = self.minValue (gameState.generateSuccessor (0, action), self.depth, numGhost)
+            value = self.minValue (gameState.generateSuccessor (0, action), depth -1)
 
             # Comprovem si el resultat es millor.
             if value > maxValue:
                 maxValue = value
                 bestAction = action
 
-        return bestAction
+        return maxValue, bestAction
 
-        # Funcio que retornara accio i valor.
-        def minValue (self, state, depth, numGhost):
-        util.raiseNotDefined()
+    # Funcio que retornara accio i valor.
+    def minValue (self, state, depth):
+        # Comprovem el final del joc.
+        if depth == 0 or state.isWin () or state.isLose(): return self.evaluationFunction (state)
+
+        # Inicialitzem bestAction, minValue i arr(ay).
+        arr = state.getLegalActions (1) # Fantasma.
+        bestAction = arr.pop ()
+        minValue, nUse = self.maxValue (state.generateSuccessor (1, bestAction), depth -1)
+
+        # Entrem dins del bucle.
+        for action in arr:
+
+            # Valor que te un pas en concret.
+            value, nUse = self.maxValue (state.generateSuccessor (1, action), depth -1)
+
+            # Comprovem si el resultat es el pitjor.
+            minValue = min (minValue, value)
+
+        return mixValue
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

@@ -14,8 +14,7 @@ set ts=4
 set expandtab
 set list
 
-set tabstop=4 shiftwidth=4 expandtab
-set list
+set tabstop=4 shiftwidth=4 expandtab list
 colorscheme industry
 
 
