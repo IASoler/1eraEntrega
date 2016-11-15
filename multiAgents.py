@@ -163,60 +163,75 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        # Descobrim la profunditat.
-        depth = self.depth
-
-        # Primer de tot, comprovem si es coherent la pregunta.
-        if gameState.isLose () or gameState.isWin() or depth == 0:
-            return None
-
-        print gameState, depth
-        maxValue, bestAction = self.maxValue (gameState, depth)
+        maxValue, bestAction = self.maxValueT (gameState, self.depth)
         return bestAction
 
-    def maxValue (self, state, depth):
-        # Comprovem el final del joc.
-        if depth == 0 or state.isWin () or state.isLose(): return self.evaluationFunction (state)
+    # Retorna el valor i l'accio mes faborables minMax
+    def maxValueT (self, state, depth):
 
-        # Inicialitzem bestAction, minValue i arr(ay).
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            return self.evaluationFunction (state), None
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
         arr = state.getLegalActions ()
+
         bestAction = arr.pop ()
-        maxValue = self.minValue (state.generateSuccessor (0, bestAction), depth -1)
+        maxValue = self.minValueT (state.generateSuccessor (0, bestAction), depth)
 
         # Entrem dins del bucle.
         for action in arr:
 
             # Valor que te un pas en concret.
-            value = self.minValue (gameState.generateSuccessor (0, action), depth -1)
+            value = self.minValueT (state.generateSuccessor (0, action), depth)
 
             # Comprovem si el resultat es millor.
             if value > maxValue:
                 maxValue = value
                 bestAction = action
 
+        # Retornem el valor i accio millors.
         return maxValue, bestAction
 
-    # Funcio que retornara accio i valor.
-    def minValue (self, state, depth):
-        # Comprovem el final del joc.
-        if depth == 0 or state.isWin () or state.isLose(): return self.evaluationFunction (state)
+    # Funcio que retorna els moviments mes defavorables.
+    def minValueT (self, state, depth):
 
-        # Inicialitzem bestAction, minValue i arr(ay).
-        arr = state.getLegalActions (1) # Fantasma.
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            return self.evaluationFunction (state)
+
+        # En cas contrari, restem depth i calculem quants fantasmes hi ha.
+        depth -= 1
+        numTotalGhosts = state.getNumAgents () -1
+
+        # Fem les convinacions per descobrir el minim.
+        return self.ghostNumber (state, numTotalGhosts, depth)
+
+    # Funcio especialitzada pels fantasmes.
+    def ghostNumber (self, state, numGhost, depth):
+
+        # No cal comprovar final, ja que s'ha fet a minValueT.
+        # Tot i que cal comprovar si queden fantasmes.
+        if not numGhost:
+            value, nUse = self.maxValueT (state, depth)
+            return value
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
+        arr = state.getLegalActions (numGhost)
+
+        if not arr:
+            return self.ghostNumber (state, numGhost -1, depth)
+
         bestAction = arr.pop ()
-        minValue, nUse = self.maxValue (state.generateSuccessor (1, bestAction), depth -1)
+        minValue = self.ghostNumber (state.generateSuccessor (numGhost, bestAction), numGhost -1, depth)
 
-        # Entrem dins del bucle.
         for action in arr:
 
-            # Valor que te un pas en concret.
-            value, nUse = self.maxValue (state.generateSuccessor (1, action), depth -1)
-
-            # Comprovem si el resultat es el pitjor.
+            value = self.ghostNumber (state.generateSuccessor (numGhost, action), numGhost -1, depth)
             minValue = min (minValue, value)
 
-        return mixValue
-
+        # Retornem el valor desitjat.
+        return minValue
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
