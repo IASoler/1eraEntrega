@@ -12,7 +12,7 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and 
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
+import pdb
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -210,7 +210,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
     # Funcio especialitzada pels fantasmes.
     def ghostNumber (self, state, numGhost, depth):
 
-        # No cal comprovar final, ja que s'ha fet a minValueT.
+        # Comprovem si estem al final.
+        if state.isWin () or state.isLose():
+            return self.evaluationFunction (state)
+
         # Tot i que cal comprovar si queden fantasmes.
         if not numGhost:
             value, nUse = self.maxValueT (state, depth)
@@ -244,10 +247,93 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        #pdb.set_trace()
+        alpha, beta = -float("inf"), float("inf")
+        maxValue, bestAction = self.maxValueT (gameState, self.depth, alpha, beta)
+        return bestAction
 
-#        for action in gameState.getLegalActions():
-#            value = self.minValue ( gameState.generateSuccessor (
-        util.raiseNotDefined()
+    # Retorna el valor i l'accio mes faborables minMax
+    def maxValueT (self, state, depth, alpha, beta):
+
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            #print "max:", self.evaluationFunction (state)
+            return self.evaluationFunction (state), None
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
+        arr = state.getLegalActions ()
+
+        bestAction = arr.pop ()
+        maxValue = self.minValueT (state.generateSuccessor (0, bestAction), depth, alpha, beta)
+
+        # Entrem dins del bucle.
+        for action in arr:
+
+            # Valor que te un pas en concret.
+            value = self.minValueT (state.generateSuccessor (0, action), depth, alpha, beta)
+
+            # Comprovem si el resultat es millor.
+            if value > maxValue:
+                maxValue = value
+                bestAction = action
+
+            # Linies necessaries per fer el Alpha-Beta.
+            if maxValue > beta:
+                return maxValue, bestAction
+            alpha = max (alpha, maxValue)
+
+        # Retornem el valor i accio millors.
+        return maxValue, bestAction
+
+    # Funcio que retorna els moviments mes defavorables.
+    def minValueT (self, state, depth, alpha, beta):
+
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            #print "min: ", self.evaluationFunction (state)
+            return self.evaluationFunction (state)
+
+        # En cas contrari, restem depth i calculem quants fantasmes hi ha.
+        depth -= 1
+        numTotalGhosts = state.getNumAgents () -1
+
+        # Fem les convinacions per descobrir el minim.
+        return self.ghostNumber (state, numTotalGhosts, depth, alpha, beta)
+
+    # Funcio especialitzada pels fantasmes.
+    def ghostNumber (self, state, numGhost, depth, alpha, beta):
+
+        # Tot i que cal comprovar si queden fantasmes.
+        if not numGhost:
+            value, nUse = self.maxValueT (state, depth, alpha, beta)
+            return value
+
+        # Comprovem si estem al final.
+        if state.isWin () or state.isLose():
+            #print "ghost: ", self.evaluationFunction (state)
+            return self.evaluationFunction (state)
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
+        arr = state.getLegalActions (numGhost)
+
+        if not arr:
+            return self.ghostNumber (state, numGhost -1, depth, alpha, beta)
+
+        bestAction = arr.pop ()
+        minValue = self.ghostNumber (state.generateSuccessor (numGhost, bestAction), numGhost -1, depth, alpha, beta)
+
+        for action in arr:
+
+            value = self.ghostNumber (state.generateSuccessor (numGhost, action), numGhost -1, depth, alpha, beta)
+            minValue = min (minValue, value)
+
+            # Linies necessaries per fer el Alpha-Beta.
+            if minValue < alpha:
+                return minValue
+            beta = max (beta, minValue)
+
+        # Retornem el valor desitjat.
+        return minValue
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -262,6 +348,93 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
+        #pdb.set_trace()
+        alpha, beta = -float("inf"), float("inf")
+        maxValue, bestAction = self.maxValueT (gameState, self.depth, alpha, beta)
+        return bestAction
+
+    # Retorna el valor i l'accio mes faborables minMax
+    def maxValueT (self, state, depth, alpha, beta):
+
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            #print "max:", self.evaluationFunction (state)
+            return self.evaluationFunction (state), None
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
+        arr = state.getLegalActions ()
+
+        bestAction = arr.pop ()
+        maxValue = self.minValueT (state.generateSuccessor (0, bestAction), depth, alpha, beta)
+
+        # Entrem dins del bucle.
+        for action in arr:
+
+            # Valor que te un pas en concret.
+            value = self.minValueT (state.generateSuccessor (0, action), depth, alpha, beta)
+
+            # Comprovem si el resultat es millor.
+            if value > maxValue:
+                maxValue = value
+                bestAction = action
+
+            # Linies necessaries per fer el Alpha-Beta.
+            if maxValue > beta:
+                return maxValue, bestAction
+            alpha = max (alpha, maxValue)
+
+        # Retornem el valor i accio millors.
+        return maxValue, bestAction
+
+    # Funcio que retorna els moviments mes defavorables.
+    def minValueT (self, state, depth, alpha, beta):
+
+        # Comprovem si estem al final.
+        if (depth == 0) or state.isWin () or state.isLose():
+            #print "min: ", self.evaluationFunction (state)
+            return self.evaluationFunction (state)
+
+        # En cas contrari, restem depth i calculem quants fantasmes hi ha.
+        depth -= 1
+        numTotalGhosts = state.getNumAgents () -1
+
+        # Fem les convinacions per descobrir el minim.
+        return self.ghostNumber (state, numTotalGhosts, depth, alpha, beta)
+
+    # Funcio especialitzada pels fantasmes.
+    def ghostNumber (self, state, numGhost, depth, alpha, beta):
+
+        # Tot i que cal comprovar si queden fantasmes.
+        if not numGhost:
+            value, nUse = self.maxValueT (state, depth, alpha, beta)
+            return value
+
+        # Comprovem si estem al final.
+        if state.isWin () or state.isLose():
+            #print "ghost: ", self.evaluationFunction (state)
+            return self.evaluationFunction (state)
+
+        # Inicialitzem els valors, per tal de poder treballar amb ells.
+        arr = state.getLegalActions (numGhost)
+
+        if not arr:
+            return self.ghostNumber (state, numGhost -1, depth, alpha, beta)
+
+        bestAction = arr.pop ()
+        minValue = self.ghostNumber (state.generateSuccessor (numGhost, bestAction), numGhost -1, depth, alpha, beta)
+
+        for action in arr:
+
+            value = self.ghostNumber (state.generateSuccessor (numGhost, action), numGhost -1, depth, alpha, beta)
+            minValue = min (minValue, value)
+
+            # Linies necessaries per fer el Alpha-Beta.
+            if minValue < alpha:
+                return minValue
+            beta = max (beta, minValue)
+
+        # Retornem el valor desitjat.
+        return minValue
         util.raiseNotDefined()
 
 def betterEvaluationFunction(currentGameState):
