@@ -263,7 +263,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # Inicialitzem els valors, per tal de poder treballar amb ells.
         arr = state.getLegalActions ()
 
-        bestAction = arr.pop ()
+        bestAction = arr.pop (0)
         maxValue = self.minValueT (state.generateSuccessor (0, bestAction), depth, alpha, beta)
 
         # Entrem dins del bucle.
@@ -295,7 +295,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         # En cas contrari, restem depth i calculem quants fantasmes hi ha.
         depth -= 1
-        numTotalGhosts = state.getNumAgents () -1
+        numTotalGhosts = 1
 
         # Fem les convinacions per descobrir el minim.
         return self.ghostNumber (state, numTotalGhosts, depth, alpha, beta)
@@ -319,7 +319,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if not arr:
             return self.ghostNumber (state, numGhost -1, depth, alpha, beta)
 
-        bestAction = arr.pop ()
+        bestAction = arr.pop (0)
         minValue = self.ghostNumber (state.generateSuccessor (numGhost, bestAction), numGhost -1, depth, alpha, beta)
 
         for action in arr:
@@ -427,7 +427,6 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
 # Abbreviation
 better = betterEvaluationFunction
