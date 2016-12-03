@@ -21,3 +21,6 @@ p4: multiAgents.py
 
 p5: multiAgents.py
 	python2.7 autograder.py -q q5
+
+vim: vimrc
+	cp vimrc ~/.vimrc
